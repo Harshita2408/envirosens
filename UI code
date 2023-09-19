@@ -1,0 +1,21 @@
+import tkinter as tk
+
+# Create the main window
+root = tk.Tk()
+root.title("Real-time Data Visualization")
+
+# Create a label to display data
+label = tk.Label(root, text="Data Placeholder", font=("Helvetica", 24))
+label.pack(pady=20)
+
+# Function to update the data display (replace with your data)
+def update_data_display():
+    data = "Updated Data"  # Replace with your actual data source
+    label.config(text=data)
+    label.after(1000, update_data_display)  # Update every 1000 milliseconds (1 second)
+
+# Start updating the data display
+update_data_display()
+
+# Run the Tkinter main loop
+root.mainloop()
