@@ -1,0 +1,29 @@
+# Import the datetime module to include timestamps
+import datetime
+
+# Define the file path
+file_path = '/path/to/your/file/data.txt'
+
+# Function to write data to the file
+def write_data_to_file(data):
+    try:
+        # Get the current timestamp
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Open the file in append mode ('a')
+        with open(file_path, 'a') as file:
+            # Write the data to the file along with a timestamp
+            file.write(f'Timestamp: {timestamp}\n')
+            file.write(data + '\n')
+
+        return True  # Successful write
+    except Exception as e:
+        return str(e)  # Return error message if an exception occurs
+
+# Example usage:
+data_to_write = "This is the data you want to write to the file."
+result = write_data_to_file(data_to_write)
+if result is True:
+    print("Data written successfully.")
+else:
+    print(f"Error: {result}")
