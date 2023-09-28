@@ -1,0 +1,77 @@
+# Importing modules
+import spidev # To communicate with SPI devices
+from numpy import interp  # To scale values
+from time import sleep  # To add delay
+
+import BlynkLib
+from BlynkTimer import BlynkTimer
+import RPi.GPIO as GPIO
+GPIO.setwarnings(False)
+
+relay1 = 8
+relay2 = 10
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(relay1, GPIO.OUT)
+GPIO.setup(relay2, GPIO.OUT)
+GPIO.output(relay1, GPIO.HIGH)
+GPIO.output(relay2, GPIO.HIGH)
+
+BLYNK_AUTH_TOKEN = 'p0as7XJVDZeZuGN2x64cRFtWYZFH9JzW'
+
+blynk = BlynkLib.Blynk(BLYNK_AUTH_TOKEN)
+
+timer = BlynkTimer()
+
+
+@blynk.on("V1")
+def v1_write_handler(value):
+#    global led_switch
+    if int(value[0]) != 0:
+        GPIO.output(relay1, GPIO.LOW)
+        print('relay1 HIGH')
+    else:
+        GPIO.output(relay1, GPIO.HIGH)
+        print('relay1 LOW')
+
+@blynk.on("V3")
+def v3_write_handler(value):
+#    global led_switch
+    if int(value[0]) != 0:
+        GPIO.output(relay2, GPIO.LOW)
+        print('relay2 HIGH')
+    else:
+        GPIO.output(relay2, GPIO.HIGH)
+        print('relay2 LOW')
+
+@blynk.on("connected")
+def blynk_connected():
+    print("Hi, You have Connected to New Blynk2.0")
+    sleep(2);
+    
+# Start SPI connection
+spi = spidev.SpiDev() # Created an object
+spi.open(0,0) 
+        
+# Read MCP3008 data
+def analogInput(channel):
+  spi.max_speed_hz = 1350000
+  adc = spi.xfer2([1,(8+channel)<<4,0])
+  data = ((adc[1]&3) << 8) + adc[2]
+  return data
+
+while True:
+  blynk.run()
+  timer.run()
+  output0 = analogInput(0) # Reading from CH0
+  output1 = analogInput(1)
+  output0 = interp(output0, [0, 716], [100, 0])
+  output1 = interp(output1, [0, 716], [100, 0])
+  output0 = int(output0)
+  output1 = int(output1)
+  print("Moisture 1:", output0)
+  print("Moisture 2:", output1)
+  blynk.virtual_write(0, output0)
+  blynk.virtual_write(2, output1)
+  sleep(1)
+  
+  
